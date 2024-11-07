@@ -8,8 +8,10 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 
-public class Game {
+public class Game implements ScreenRefresher {
     private Screen screen;
     private Arena arena;
     private boolean running = true;
@@ -25,7 +27,7 @@ public class Game {
             screen.startScreen(); // screens must be started
             screen.doResizeIfNecessary(); // resize screen if necessary
 
-            arena = new Arena(40,20);
+            arena = new Arena(40,20, this);
 
             screen.clear();
             screen.refresh();
@@ -35,11 +37,13 @@ public class Game {
     }
 
     public void run() throws IOException {
+        handleFalling();
         while (running) {
             draw();
             KeyStroke key = screen.readInput();
             try {
                 processKey(key);
+                handleFalling();
             } catch (IOException e) {
                 running = false;
             }
@@ -57,10 +61,27 @@ public class Game {
         arena.processKey(key);
     }
 
+    private void handleFalling() throws IOException {
+        while (arena.isHeroFalling()) {
+            arena.moveHeroDown();
+            try {
+                Thread.sleep(100); // Adjust the speed of falling as needed
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            draw();
+        }
+    }
+
 
     private void resetGame() {
-        arena = new Arena(40, 20);
+        arena = new Arena(40, 20, this);
         running = true;
+    }
+
+    @Override
+    public void drawAndRefresh() throws IOException {
+        draw();
     }
 
 }
