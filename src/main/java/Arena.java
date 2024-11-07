@@ -23,7 +23,7 @@ public class Arena {
     public Arena (int width, int height, ScreenRefresher screenRefresher) {
         this.width = width;
         this.height = height;
-        this.hero = new Hero(width / 2, height / 2);
+        this.hero = new Hero(width / 2, height-2); //spawn hero at the bottom of the screen
         this.blocks = createBlocks();
         this.screenRefresher = screenRefresher;
     }
@@ -92,15 +92,34 @@ public class Arena {
         }
     }
 
+    public void moveHero(int jumpHeight) throws IOException {
+        List<Position> trajectory = hero.projectileMotion(jumpHeight);
+        for (Position position : trajectory) {
+            if (canHeroMove(position)) {
+                hero.setPosition(position);
+                screenRefresher.drawAndRefresh();
+                try {
+                    Thread.sleep(100); // Adjust the speed of jumping as needed
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
     public void processKey(KeyStroke key) throws IOException {
+        int jumpHeight = 0;
+        int movement = 0;
         if (key.getKeyType() == KeyType.ArrowUp) {
             if (!upKeyPressed) { // If key was not previously pressed
                 upKeyPressed = true;
                 keyPressStartTime = Instant.now();
             } else { // If key was previously pressed
                 Duration keyPressDuration = Duration.between(keyPressStartTime, Instant.now());
-                int jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
-                jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); //Apply limits
+                jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
+                jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); // Apply limits
                 moveHeroUp(jumpHeight);
 
                 // Reset the flag
@@ -109,9 +128,10 @@ public class Arena {
         } else {
             if (upKeyPressed) { // Key was released (when any other key is pressed)
                 Duration keyPressDuration = Duration.between(keyPressStartTime, Instant.now());
-                int jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
-                jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); //Apply limits
-                moveHeroUp(jumpHeight);
+                jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
+                jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); // Apply limits
+                moveHero(jumpHeight);
+
 
                 // Reset the flag
                 upKeyPressed = false;
