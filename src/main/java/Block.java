@@ -1,5 +1,6 @@
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 
@@ -11,8 +12,7 @@ public class Block extends Element {
 
     @Override
     public void draw(TextGraphics graphics) {
-        graphics.setForegroundColor(TextColor.Factory.fromString("#FF0000"));
-        graphics.enableModifiers(SGR.BOLD);
-        graphics.putString(new TerminalPosition(position.getX(), position.getY()), "#");
+        graphics.setBackgroundColor(TextColor.Factory.fromString("#FF0000"));
+        graphics.fillRectangle(new TerminalPosition(position.getX(), position.getY()), new TerminalSize(1, 1), ' ');
     }
 }

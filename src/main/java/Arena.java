@@ -23,7 +23,7 @@ public class Arena {
     public Arena (int width, int height, ScreenRefresher screenRefresher) {
         this.width = width;
         this.height = height;
-        this.hero = new Hero(width / 2, height-2); //spawn hero at the bottom of the screen
+        this.hero = new Hero(width / 2, height/2); //spawn hero at the bottom of the screen
         this.blocks = createBlocks();
         this.screenRefresher = screenRefresher;
     }
@@ -53,6 +53,13 @@ public class Arena {
             blocks.add(new Block(0, r));
             blocks.add(new Block(width - 1, r));
         }
+
+        // Add lines of blocks 5 pixels above the bottom edge
+        int blockLineY = height - 6; // 5 pixels above the bottom edge
+        for (int c = 20; c < width -10; c++) {
+            blocks.add(new Block(c, blockLineY));
+        }
+
         return blocks;
     }
 
@@ -78,22 +85,17 @@ public class Arena {
         }
     }
 
-    public void moveHeroLeft() {
-        Position newPosition = hero.moveLeft();
-        if (canHeroMove(newPosition)) {
-            hero.setPosition(newPosition);
-        }
-    }
-
-    public void moveHeroRight() {
-        Position newPosition = hero.moveRight();
-        if (canHeroMove(newPosition)) {
-            hero.setPosition(newPosition);
-        }
-    }
-
     public void moveHero(int jumpHeight, int direction) throws IOException {
-        List<Position> trajectory = hero.projectileMotion(jumpHeight, direction);
+        int maxX;
+        if (jumpHeight <= 2) {
+            maxX = 1;
+        } else if (jumpHeight <= 6) {
+            maxX = 2;
+        } else {
+            maxX = 5;
+        }
+
+        List<Position> trajectory = hero.projectileMotion(jumpHeight, direction, maxX);
         for (Position position : trajectory) {
             if (canHeroMove(position)) {
                 hero.setPosition(position);
@@ -110,16 +112,17 @@ public class Arena {
     }
 
     public void processKey(KeyStroke key) throws IOException {
-        int jumpHeight = 0;
-        int movement = 0;
+        int jumpHeight;
         if (key.getKeyType() == KeyType.ArrowUp) {
             if (!upKeyPressed) { // If key was not previously pressed
                 upKeyPressed = true;
                 keyPressStartTime = Instant.now();
+                hero.setColor("#000000");
             } else { // If key was previously pressed
                 Duration keyPressDuration = Duration.between(keyPressStartTime, Instant.now());
                 jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
                 jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); // Apply limits
+                hero.setColor("#FFFFFF");
                 moveHeroUp(jumpHeight);
 
                 // Reset the flag
@@ -130,6 +133,7 @@ public class Arena {
                 Duration keyPressDuration = Duration.between(keyPressStartTime, Instant.now());
                 jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
                 jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); // Apply limits
+                hero.setColor("#FFFFFF");
                 if (key.getKeyType() == KeyType.ArrowLeft) {
                     moveHero(jumpHeight, -1);
                 } else if (key.getKeyType() == KeyType.ArrowRight) {
@@ -142,13 +146,7 @@ public class Arena {
             }
         }
 
-        if (key.getKeyType() == KeyType.ArrowDown) {
-            moveHeroDown();
-        } else if (key.getKeyType() == KeyType.ArrowLeft) {
-            moveHeroLeft();
-        } else if (key.getKeyType() == KeyType.ArrowRight) {
-            moveHeroRight();
-        } else if (key.getKeyType() == KeyType.Character && key.getCharacter() == 'q') {
+        if (key.getKeyType() == KeyType.Character && key.getCharacter() == 'q') {
             throw new IOException("Exit the loop");
         } else if (key.getKeyType() == KeyType.EOF) {
             throw new IOException("Exit the loop");
