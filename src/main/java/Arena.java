@@ -92,8 +92,8 @@ public class Arena {
         }
     }
 
-    public void moveHero(int jumpHeight) throws IOException {
-        List<Position> trajectory = hero.projectileMotion(jumpHeight);
+    public void moveHero(int jumpHeight, int direction) throws IOException {
+        List<Position> trajectory = hero.projectileMotion(jumpHeight, direction);
         for (Position position : trajectory) {
             if (canHeroMove(position)) {
                 hero.setPosition(position);
@@ -130,7 +130,11 @@ public class Arena {
                 Duration keyPressDuration = Duration.between(keyPressStartTime, Instant.now());
                 jumpHeight = (int) keyPressDuration.toMillis() / 100; // Adjust divisor for jump sensitivity
                 jumpHeight = Math.max(MIN_JUMP_HEIGHT, Math.min(jumpHeight, MAX_JUMP_HEIGHT)); // Apply limits
-                moveHero(jumpHeight);
+                if (key.getKeyType() == KeyType.ArrowLeft) {
+                    moveHero(jumpHeight, -1);
+                } else if (key.getKeyType() == KeyType.ArrowRight) {
+                    moveHero(jumpHeight, 1);
+                }
 
 
                 // Reset the flag

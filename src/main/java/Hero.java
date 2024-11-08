@@ -41,9 +41,9 @@ public class Hero extends Element {
         return position.getX() + (int) Math.round(distance);
     }
 
-    public List<Position> projectileMotion(double height) {
+    public List<Position> projectileMotion(double height, int direction) {
         List<Position> points = new ArrayList<>();
-        int maxX = calculateX(height);
+        int maxX = 5;
 
         // Vertex of the parabola is at (maxX/2, height)
         double h = maxX / 2.0;
@@ -57,7 +57,7 @@ public class Hero extends Element {
             double y = a * Math.pow(x - h, 2) + k;
             // Round x and y to integers and add to the list as Position objects
             System.out.println(x + " " + y);
-            points.add(new Position(position.getX() + (int) Math.round(x), position.getY() - (int) Math.round(y)));
+            points.add(new Position(position.getX() + (int) Math.round(x * direction), position.getY() - (int) Math.round(y)));
         }
 
         return points;
