@@ -27,6 +27,7 @@ public class Game implements ScreenRefresher {
             screen.doResizeIfNecessary(); // resize screen if necessary
 
             TerminalSize terminalSize = screen.getTerminalSize();
+            System.out.println("Terminal Size: " + terminalSize.getColumns() + "x" + terminalSize.getRows());
             arena = new Arena(terminalSize.getColumns(), terminalSize.getRows(), this);
 
             screen.clear();
@@ -74,7 +75,7 @@ public class Game implements ScreenRefresher {
     }
 
 
-    private void resetGame() {
+    private void resetGame() throws IOException {
         arena = new Arena(40, 20, this);
         running = true;
     }

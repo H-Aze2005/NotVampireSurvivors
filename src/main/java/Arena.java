@@ -17,15 +17,36 @@ public class Arena {
     private Instant keyPressStartTime;
     private boolean upKeyPressed = false;
     private final int MIN_JUMP_HEIGHT = 1;
-    private final int MAX_JUMP_HEIGHT = 10;
+    private final int MAX_JUMP_HEIGHT = 15;
     private ScreenRefresher screenRefresher;
 
-    public Arena (int width, int height, ScreenRefresher screenRefresher) {
+    public Arena (int width, int height, ScreenRefresher screenRefresher) throws IOException {
         this.width = width;
         this.height = height;
-        this.hero = new Hero(width / 2, height/2); //spawn hero at the bottom of the screen
-        this.blocks = createBlocks();
+        this.hero = new Hero(width / 2, height - 2); //spawn hero at the bottom of the screen
+        this.blocks = new ArrayList<>();
         this.screenRefresher = screenRefresher;
+        loadArenaFromFile("src/main/resources/screen1.txt");
+    }
+
+    private void loadArenaFromFile(String filePath) throws IOException {
+        FileReader fileReader = new FileReader();
+        List<String> lines = fileReader.readFile(filePath);
+
+        this.height = lines.size();
+        this.width = lines.get(0).length();
+
+        for (int y = 0; y < height; y++) {
+            String line = lines.get(y);
+            for (int x = 0; x < width; x++) {
+                char ch = line.charAt(x);
+                if (ch == '#') {
+                    blocks.add(new Block(x, y));
+                } else if (ch == 'H') {
+                    hero.setPosition(new Position(x, y));
+                }
+            }
+        }
     }
 
     public Hero getHero() {
@@ -92,7 +113,7 @@ public class Arena {
         } else if (jumpHeight <= 6) {
             maxX = 2;
         } else {
-            maxX = 5;
+            maxX = 6;
         }
 
         List<Position> trajectory = hero.projectileMotion(jumpHeight, direction, maxX);
