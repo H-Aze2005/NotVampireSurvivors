@@ -102,6 +102,20 @@ public class Arena {
         }
     }
 
+    public void moveHeroRight() {
+        Position newPosition = hero.moveRight();
+        if (canHeroMove(newPosition)) {
+            hero.setPosition(newPosition);
+        }
+    }
+
+    public void moveHeroLeft() {
+        Position newPosition = hero.moveLeft();
+        if (canHeroMove(newPosition)) {
+            hero.setPosition(newPosition);
+        }
+    }
+
     public void moveHero(int jumpHeight, int direction) throws IOException {
         int maxX;
         if (jumpHeight <= 2) {
@@ -160,6 +174,12 @@ public class Arena {
 
                 // Reset the flag
                 upKeyPressed = false;
+            } else {
+                if (key.getKeyType() == KeyType.ArrowLeft) {
+                    moveHeroLeft();
+                } else if (key.getKeyType() == KeyType.ArrowRight) {
+                    moveHeroRight();
+                }
             }
         }
 
