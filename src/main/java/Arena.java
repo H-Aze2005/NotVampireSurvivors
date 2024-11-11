@@ -49,10 +49,6 @@ public class Arena {
         }
     }
 
-    public Hero getHero() {
-        return hero;
-    }
-
     public void draw(TextGraphics graphics) {
         graphics.setBackgroundColor(com.googlecode.lanterna.TextColor.ANSI.BLUE);
         graphics.fillRectangle(new com.googlecode.lanterna.TerminalPosition(0, 0), new com.googlecode.lanterna.TerminalSize(width, height), ' ');
@@ -122,7 +118,7 @@ public class Arena {
                 hero.setPosition(position);
                 screenRefresher.drawAndRefresh();
                 try {
-                    Thread.sleep(100); // Adjust the speed of jumping as needed
+                    Thread.sleep(10); // Adjust the speed of jumping as needed
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

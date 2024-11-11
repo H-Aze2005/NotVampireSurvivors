@@ -18,7 +18,9 @@ public class Game implements ScreenRefresher {
 
     public Game() {
         try {
-            DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
+            DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory()
+                    .setInitialTerminalSize(new TerminalSize(111, 37)); // Set desired terminal size
+
             Terminal terminal = terminalFactory.createTerminal();
 
             screen = new TerminalScreen(terminal);
@@ -27,7 +29,7 @@ public class Game implements ScreenRefresher {
             screen.doResizeIfNecessary(); // resize screen if necessary
 
             TerminalSize terminalSize = screen.getTerminalSize();
-            System.out.println("Terminal Size: " + terminalSize.getColumns() + "x" + terminalSize.getRows());
+            //System.out.println("Terminal Size: " + terminalSize.getColumns() + "x" + terminalSize.getRows());
             arena = new Arena(terminalSize.getColumns(), terminalSize.getRows(), this);
 
             screen.clear();
